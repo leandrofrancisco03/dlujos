@@ -55,7 +55,7 @@ export default function RootLayout({
   return (
     <html lang="es">
       <head>
-        <link rel="icon" href="/favicon.mp4" type="video/mp4" />
+        <link rel="icon" href="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/logodlujos2025-Q7yeYhl1LZJBLTkeGakwMOdZLhwUcW.mp4" type="video/mp4" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <meta name="theme-color" content="#3b82f6" />
         <script

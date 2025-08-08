@@ -26,7 +26,7 @@ export default function AnimatedHeader() {
       <div className="container flex h-16 items-center justify-between">
         <div className="flex items-center gap-2 animate-fade-in">
           <video autoPlay loop muted playsInline className="h-10 w-auto">
-            <source src="/favicon.mp4" type="video/mp4" />
+            <source src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/logodlujos2025-Q7yeYhl1LZJBLTkeGakwMOdZLhwUcW.mp4" type="video/mp4" />
           </video>
           <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
             Import D&apos;Lujos

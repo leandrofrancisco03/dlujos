@@ -67,6 +67,10 @@
     animation: slideDown 0.6s ease-out;
   }
 
+  .animate-slide-up {
+    animation: slideUp 0.3s ease-out;
+  }
+
   .animate-blob {
     animation: blob 7s infinite;
   }
@@ -99,6 +103,17 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
   }
 }
 
