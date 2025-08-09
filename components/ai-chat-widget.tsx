@@ -6,9 +6,11 @@ import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { MessageCircle, X, Send, Bot, User, Loader2 } from 'lucide-react'
+import { MessageCircle, X, Send, Bot, User, Loader2 } from "lucide-react"
+import ReactMarkdown from "react-markdown"
+import remarkGfm from "remark-gfm"
 
-const WEBHOOK_URL = process.env.NEXT_PUBLIC_N8N_WEBHOOK_URL;
+const WEBHOOK_URL = process.env.NEXT_PUBLIC_N8N_WEBHOOK_URL
 
 interface Message {
   id: string
@@ -48,12 +50,11 @@ export default function AIChatWidget() {
         setIsOpen(true)
         setHasAutoOpened(true)
       }, 4000)
-
       return () => clearTimeout(timer)
     }
   }, [hasAutoOpened])
 
-  // Mensaje de bienvenida inicial - MÁS PEQUEÑO
+  // Mensaje de bienvenida inicial
   useEffect(() => {
     if (isOpen && messages.length === 0) {
       const welcomeMessage: Message = {
@@ -82,7 +83,6 @@ export default function AIChatWidget() {
     setIsLoading(true)
 
     try {
-      // Verificar que la variable esté configurada
       if (!WEBHOOK_URL) {
         console.warn("Falta configurar NEXT_PUBLIC_N8N_WEBHOOK_URL")
         const errorMessage: Message = {
@@ -98,11 +98,9 @@ export default function AIChatWidget() {
 
       const response = await fetch(WEBHOOK_URL, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          sessionId: sessionId,
+          sessionId,
           action: "sendMessage",
           chatInput: userMessage.content,
         }),
@@ -118,7 +116,7 @@ export default function AIChatWidget() {
       if (aiResponse) {
         const aiMessage: Message = {
           id: crypto.randomUUID(),
-          content: aiResponse,
+          content: String(aiResponse),
           isUser: false,
           timestamp: new Date(),
         }
@@ -145,18 +143,9 @@ export default function AIChatWidget() {
     }
   }
 
-  const formatMessage = (content: string) => {
-    return content.split("\n").map((line, index) => (
-      <span key={index}>
-        {line}
-        {index < content.split("\n").length - 1 && <br />}
-      </span>
-    ))
-  }
-
   return (
     <>
-      {/* Botón flotante - Responsivo */}
+      {/* Botón flotante */}
       <Button
         onClick={() => setIsOpen(!isOpen)}
         className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 h-12 w-12 sm:h-14 sm:w-14 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl transform hover:scale-110 transition-all duration-300"
@@ -170,10 +159,10 @@ export default function AIChatWidget() {
         <span className="sr-only">{isOpen ? "Cerrar chat" : "Abrir chat"}</span>
       </Button>
 
-      {/* Chat Widget - MÁS PEQUEÑO Y COMPACTO */}
+      {/* Chat Widget */}
       {isOpen && (
         <Card className="fixed bottom-20 right-4 sm:bottom-24 sm:right-6 z-40 w-[calc(100vw-2rem)] max-w-xs sm:w-72 sm:max-w-sm h-80 sm:h-80 shadow-2xl border-0 bg-white overflow-hidden animate-fade-in">
-          {/* Header COMPACTO - altura fija pequeña */}
+          {/* Header */}
           <CardHeader className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-2 h-10 flex-shrink-0 flex items-center">
             <div className="flex items-center gap-2 w-full">
               <div className="w-5 h-5 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0">
@@ -185,9 +174,9 @@ export default function AIChatWidget() {
             </div>
           </CardHeader>
 
-          {/* Contenido del chat - altura calculada */}
+          {/* Body */}
           <div className="flex flex-col h-[calc(100%-2.5rem)]">
-            {/* Messages Area - SOLO ESTA ÁREA TIENE SCROLL */}
+            {/* Messages Area */}
             <div className="flex-1 overflow-y-auto p-2 space-y-2 bg-gray-50">
               {messages.map((message) => (
                 <div key={message.id} className={`flex gap-1 ${message.isUser ? "justify-end" : "justify-start"}`}>
@@ -196,6 +185,7 @@ export default function AIChatWidget() {
                       <Bot className="h-3 w-3 text-white" />
                     </div>
                   )}
+
                   <div
                     className={`max-w-[80%] p-2 rounded-lg text-xs ${
                       message.isUser
@@ -203,11 +193,65 @@ export default function AIChatWidget() {
                         : "bg-white border border-gray-200 text-gray-800 rounded-bl-none shadow-sm"
                     }`}
                   >
-                    <div className="whitespace-pre-wrap leading-relaxed">{formatMessage(message.content)}</div>
+                    {message.isUser ? (
+                      <div className="whitespace-pre-wrap leading-relaxed break-words">{message.content}</div>
+                    ) : (
+                      <div className="markdown-body">
+                        <ReactMarkdown
+                          remarkPlugins={[remarkGfm]}
+                          components={{
+                            a: ({ node, ...props }) => (
+                              <a
+                                {...props}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="underline text-blue-600 hover:text-blue-700 break-words"
+                              />
+                            ),
+                            code: ({ inline, className, children, ...props }) => {
+                              if (inline) {
+                                return (
+                                  <code
+                                    className="px-1 py-0.5 rounded bg-gray-100 text-gray-800 break-words"
+                                    {...props}
+                                  >
+                                    {children}
+                                  </code>
+                                )
+                              }
+                              return (
+                                <pre className="bg-gray-900 text-gray-100 p-3 rounded-md overflow-x-auto max-w-full text-[10px] sm:text-xs">
+                                  <code className={className} {...props}>
+                                    {children}
+                                  </code>
+                                </pre>
+                              )
+                            },
+                            ul: (props) => <ul className="list-disc pl-5 my-2 space-y-1" {...props} />,
+                            ol: (props) => <ol className="list-decimal pl-5 my-2 space-y-1" {...props} />,
+                            blockquote: (props) => (
+                              <blockquote className="border-l-4 border-gray-300 pl-3 my-2 text-gray-600" {...props} />
+                            ),
+                            p: (props) => <p className="my-2 break-words" {...props} />,
+                            table: (props) => (
+                              <div className="overflow-x-auto">
+                                <table className="min-w-[300px] text-left text-xs" {...props} />
+                              </div>
+                            ),
+                            th: (props) => <th className="border px-2 py-1 bg-gray-100" {...props} />,
+                            td: (props) => <td className="border px-2 py-1 align-top" {...props} />,
+                          }}
+                        >
+                          {message.content}
+                        </ReactMarkdown>
+                      </div>
+                    )}
+
                     <div className={`text-xs mt-1 opacity-70 ${message.isUser ? "text-blue-100" : "text-gray-500"}`}>
                       {message.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                     </div>
                   </div>
+
                   {message.isUser && (
                     <div className="w-5 h-5 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0">
                       <User className="h-3 w-3 text-gray-600" />
@@ -232,7 +276,7 @@ export default function AIChatWidget() {
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Input Area - FOOTER COMPACTO Y FIJO */}
+            {/* Input Area */}
             <div className="p-2 border-t bg-white flex-shrink-0">
               <div className="flex gap-1">
                 <Input
