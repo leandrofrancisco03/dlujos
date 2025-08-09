@@ -2,14 +2,18 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
+import { useForm, ValidationError } from "@formspree/react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { MessageSquare, Mail, Instagram, Facebook, Send, Phone } from "lucide-react"
+import { MessageSquare, Mail, Instagram, Facebook, Send, Phone, CheckCircle2 } from 'lucide-react'
 
 export default function ContactSection() {
   const [isVisible, setIsVisible] = useState(false)
+
+  // Formspree: use your form ID "mvgqvdoy"
+  const [state, handleSubmit] = useForm("mvgqvdoy")
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -62,50 +66,99 @@ export default function ContactSection() {
               <CardDescription>Completa el formulario y te responderemos a la brevedad.</CardDescription>
             </CardHeader>
             <CardContent>
-              <form className="grid gap-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="grid gap-2">
-                    <label htmlFor="first-name" className="text-sm font-medium text-gray-700">
-                      Nombre
-                    </label>
-                    <Input id="first-name" placeholder="Juan" className="border-gray-200 focus:border-blue-500" />
+              {state.succeeded ? (
+                <div className="flex flex-col items-center text-center gap-2 py-6">
+                  <div className="w-10 h-10 rounded-full bg-green-100 text-green-700 flex items-center justify-center">
+                    <CheckCircle2 className="h-6 w-6" />
                   </div>
-                  <div className="grid gap-2">
-                    <label htmlFor="last-name" className="text-sm font-medium text-gray-700">
-                      Apellido
-                    </label>
-                    <Input id="last-name" placeholder="Pérez" className="border-gray-200 focus:border-blue-500" />
-                  </div>
+                  <p className="text-green-700 font-medium">¡Gracias! Tu mensaje fue enviado correctamente.</p>
+                  <p className="text-sm text-gray-600">
+                    Te responderemos lo antes posible. También puedes escribirnos por WhatsApp.
+                  </p>
                 </div>
-                <div className="grid gap-2">
-                  <label htmlFor="email" className="text-sm font-medium text-gray-700">
-                    Email
-                  </label>
-                  <Input
-                    id="email"
-                    placeholder="ejemplo@correo.com"
-                    type="email"
-                    className="border-gray-200 focus:border-blue-500"
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <label htmlFor="message" className="text-sm font-medium text-gray-700">
-                    Mensaje
-                  </label>
-                  <Textarea
-                    id="message"
-                    placeholder="Escribe tu mensaje aquí..."
-                    className="border-gray-200 focus:border-blue-500"
-                  />
-                </div>
-                <Button
-                  type="submit"
-                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 transform hover:scale-105 transition-all"
+              ) : (
+                <form
+                  onSubmit={handleSubmit}
+                  className="grid gap-4"
+                  // Honeypot compatible con Formspree
+                  data-formspree-honeypot="company"
                 >
-                  Enviar mensaje
-                  <Send className="ml-2 h-4 w-4" />
-                </Button>
-              </form>
+                  {/* Honeypot oculto */}
+                  <input type="text" name="company" className="hidden" tabIndex={-1} autoComplete="off" />
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="grid gap-2">
+                      <label htmlFor="firstName" className="text-sm font-medium text-gray-700">
+                        Nombre
+                      </label>
+                      <Input
+                        id="firstName"
+                        name="firstName"
+                        placeholder="Juan"
+                        className="border-gray-200 focus:border-blue-500"
+                        disabled={state.submitting}
+                        required
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <label htmlFor="lastName" className="text-sm font-medium text-gray-700">
+                        Apellido
+                      </label>
+                      <Input
+                        id="lastName"
+                        name="lastName"
+                        placeholder="Pérez"
+                        className="border-gray-200 focus:border-blue-500"
+                        disabled={state.submitting}
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid gap-2">
+                    <label htmlFor="email" className="text-sm font-medium text-gray-700">
+                      Email
+                    </label>
+                    <Input
+                      id="email"
+                      name="email"
+                      type="email"
+                      placeholder="ejemplo@correo.com"
+                      className="border-gray-200 focus:border-blue-500"
+                      disabled={state.submitting}
+                      required
+                    />
+                    <ValidationError prefix="Email" field="email" errors={state.errors} />
+                  </div>
+
+                  <div className="grid gap-2">
+                    <label htmlFor="message" className="text-sm font-medium text-gray-700">
+                      Mensaje
+                    </label>
+                    <Textarea
+                      id="message"
+                      name="message"
+                      placeholder="Escribe tu mensaje aquí..."
+                      className="border-gray-200 focus:border-blue-500 min-h-[120px]"
+                      disabled={state.submitting}
+                      required
+                    />
+                    <ValidationError prefix="Message" field="message" errors={state.errors} />
+                  </div>
+
+                  {/* Opcional: asunto visible para tu correo de Formspree */}
+                  <input type="hidden" name="_subject" value="Nuevo mensaje desde Import D'Lujos" />
+
+                  <Button
+                    type="submit"
+                    disabled={state.submitting}
+                    className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 transform hover:scale-105 transition-all"
+                  >
+                    {state.submitting ? "Enviando..." : "Enviar mensaje"}
+                    <Send className="ml-2 h-4 w-4" />
+                  </Button>
+                </form>
+              )}
             </CardContent>
           </Card>
 

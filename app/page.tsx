@@ -8,6 +8,7 @@ import TestimonialsSection from "@/components/testimonials-section"
 import ContactSection from "@/components/contact-section"
 import AnimatedHeader from "@/components/animated-header"
 import AIChatWidget from "@/components/ai-chat-widget"
+import SeoFaq from "@/components/seo-faq"
 
 export default function Home() {
   return (
@@ -18,6 +19,8 @@ export default function Home() {
         <PersonalShopperSection />
         <ServicesSection />
         <BrandsSection />
+        {/* SEO-oriented FAQ section */}
+        <SeoFaq />
         <TestimonialsSection />
         <ContactSection />
       </main>
@@ -26,13 +29,11 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="space-y-4">
               <div className="flex items-center gap-2">
-                <video autoPlay loop muted playsInline className="h-8 w-auto">
-                  <source src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/logodlujos2025-Q7yeYhl1LZJBLTkeGakwMOdZLhwUcW.mp4" type="video/mp4" />
-                </video>
+                <img src="/favicon.png" className="h-8 w-8 rounded" alt="Logo Import D'Lujos" />
                 <span className="text-lg font-bold">Import D&apos;Lujos</span>
               </div>
               <p className="text-sm text-slate-300">
-                Tu intermediario de confianza para compras internacionales. Hacemos que lo imposible sea posible.
+                Personal Shopper en EE. UU. y compras internacionales con envío seguro a Perú.
               </p>
             </div>
             <div className="space-y-4">
@@ -49,6 +50,9 @@ export default function Home() {
                 </Link>
                 <Link href="#personal-shopper" className="text-sm hover:text-blue-400 transition-colors">
                   Personal Shopper
+                </Link>
+                <Link href="#preguntas-frecuentes" className="text-sm hover:text-blue-400 transition-colors">
+                  Preguntas frecuentes
                 </Link>
                 <Link href="#testimonios" className="text-sm hover:text-blue-400 transition-colors">
                   Testimonios

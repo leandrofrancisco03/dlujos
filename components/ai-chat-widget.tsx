@@ -6,7 +6,9 @@ import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { MessageCircle, X, Send, Bot, User, Loader2 } from "lucide-react"
+import { MessageCircle, X, Send, Bot, User, Loader2 } from 'lucide-react'
+
+const WEBHOOK_URL = process.env.NEXT_PUBLIC_N8N_WEBHOOK_URL;
 
 interface Message {
   id: string
@@ -80,7 +82,21 @@ export default function AIChatWidget() {
     setIsLoading(true)
 
     try {
-      const response = await fetch("https://n8n.tmkmarket.com/webhook/acfa76bc-e099-4270-9777-034162eff32b/chat", {
+      // Verificar que la variable esté configurada
+      if (!WEBHOOK_URL) {
+        console.warn("Falta configurar NEXT_PUBLIC_N8N_WEBHOOK_URL")
+        const errorMessage: Message = {
+          id: crypto.randomUUID(),
+          content:
+            "El chat no está configurado. Por favor configura la variable NEXT_PUBLIC_N8N_WEBHOOK_URL y vuelve a intentarlo.",
+          isUser: false,
+          timestamp: new Date(),
+        }
+        setMessages((prev) => [...prev, errorMessage])
+        return
+      }
+
+      const response = await fetch(WEBHOOK_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -88,7 +104,7 @@ export default function AIChatWidget() {
         body: JSON.stringify({
           sessionId: sessionId,
           action: "sendMessage",
-          chatInput: inputValue,
+          chatInput: userMessage.content,
         }),
       })
 
